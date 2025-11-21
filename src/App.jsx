@@ -16,7 +16,8 @@ function App() {
         selectTasbih,
         increment,
         reset,
-        setActiveTasbihId
+        setActiveTasbihId,
+        user
     } = useTasbih();
 
     const [isAdding, setIsAdding] = useState(false);
@@ -25,6 +26,11 @@ function App() {
     const handleAdd = (newTasbih) => {
         addTasbih(newTasbih);
         setIsAdding(false);
+    };
+
+    const handleLogout = async () => {
+        const { supabase } = await import('./lib/supabase');
+        await supabase.auth.signOut();
     };
 
     return (
@@ -46,21 +52,43 @@ function App() {
                 />
             ) : (
                 <>
-                    <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem' }}>
-                        <button
-                            onClick={() => setShowAuth(true)}
-                            style={{
-                                background: 'rgba(255,255,255,0.1)',
-                                border: 'none',
-                                color: 'var(--text-color)',
-                                padding: '0.5rem 1rem',
-                                borderRadius: '20px',
-                                cursor: 'pointer',
-                                fontSize: '0.8rem'
-                            }}
-                        >
-                            Login / Sync
-                        </button>
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem', alignItems: 'center', gap: '1rem' }}>
+                        {user ? (
+                            <>
+                                <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                                    {user.email}
+                                </span>
+                                <button
+                                    onClick={handleLogout}
+                                    style={{
+                                        background: 'rgba(239, 68, 68, 0.1)',
+                                        border: '1px solid rgba(239, 68, 68, 0.2)',
+                                        color: '#ef4444',
+                                        padding: '0.5rem 1rem',
+                                        borderRadius: '20px',
+                                        cursor: 'pointer',
+                                        fontSize: '0.8rem'
+                                    }}
+                                >
+                                    Logout
+                                </button>
+                            </>
+                        ) : (
+                            <button
+                                onClick={() => setShowAuth(true)}
+                                style={{
+                                    background: 'rgba(255,255,255,0.1)',
+                                    border: 'none',
+                                    color: 'var(--text-color)',
+                                    padding: '0.5rem 1rem',
+                                    borderRadius: '20px',
+                                    cursor: 'pointer',
+                                    fontSize: '0.8rem'
+                                }}
+                            >
+                                Login / Sync
+                            </button>
+                        )}
                     </div>
                     <TasbihList
                         tasbihs={tasbihs}

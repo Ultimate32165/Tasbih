@@ -47,7 +47,7 @@ export function Counter({ tasbih, count, onIncrement, onBack, onReset }) {
               cx="50"
               cy="50"
               r="45"
-              style={{ strokeDashoffset: \`\${283 - (283 * progress) / 100}\` }}
+              style={{ strokeDashoffset: `${283 - (283 * progress) / 100}` }}
             />
           </svg>
           <div className="glow-effect"></div>
