@@ -56,7 +56,7 @@ function App() {
                         {user ? (
                             <>
                                 <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                                    {user.email?.split('@')[0]}
+                                    {user.user_metadata?.username || user.email?.split('@')[0]}
                                 </span>
                                 <button
                                     onClick={handleLogout}

@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabase';
 export function Auth({ onCancel }) {
   const [loading, setLoading] = useState(false);
   const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isSignUp, setIsSignUp] = useState(false);
   const [message, setMessage] = useState('');
@@ -13,23 +14,38 @@ export function Auth({ onCancel }) {
     setLoading(true);
     setMessage('');
 
-    // Append dummy domain to create a valid email format
-    const email = `${username}@tasbih-app.com`;
-
     try {
       if (isSignUp) {
-        const { error } = await supabase.auth.signUp({
+        // Sign Up Logic
+        const { data, error } = await supabase.auth.signUp({
           email,
           password,
+          options: {
+            data: {
+              username,
+            },
+          },
         });
+
         if (error) throw error;
-        setMessage('Account created! You can now sign in.');
-        setIsSignUp(false); // Switch to sign in mode
-      } else {
-        const { error } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
+
+        // Attempt to create a profile record if the table exists
+        // This is "best effort" - if it fails (e.g. table doesn't exist), we just continue
+        // The user might need to create the table manually for username login to work later
+        if (data?.user) {
+          try {
+            await supabase.from('profiles').insert({
+              id: data.user.id,
+              username: username,
+              email: email
+            });
+          } catch (profileError) {
+            console.warn('Could not create profile record:', profileError);
+          }
+        }
+
+        setMessage('Account created! Please check your email to verify your account, then sign in.');
+        setIsSignUp(false);
         if (error) throw error;
         // Login successful
       }
@@ -48,19 +64,37 @@ export function Auth({ onCancel }) {
 
         <form onSubmit={handleAuth}>
           <div className="form-group">
+            <label className="input-label">
+              {isSignUp ? 'Username' : 'Username or Email'}
+            </label>
             <input
               type="text"
-              placeholder="Username"
+              placeholder={isSignUp ? "Choose a username" : "Enter username or email"}
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               required
               minLength={3}
             />
           </div>
+
+          {isSignUp && (
+            <div className="form-group">
+              <label className="input-label">Email</label>
+              <input
+                type="email"
+                placeholder="Enter your email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </div>
+          )}
+
           <div className="form-group">
+            <label className="input-label">Password</label>
             <input
               type="password"
-              placeholder="Password"
+              placeholder="Enter password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
@@ -78,7 +112,10 @@ export function Auth({ onCancel }) {
         <div className="auth-footer">
           <button
             className="link-btn"
-            onClick={() => setIsSignUp(!isSignUp)}
+            onClick={() => {
+              setIsSignUp(!isSignUp);
+              setMessage('');
+            }}
           >
             {isSignUp ? 'Already have an account? Sign In' : "Don't have an account? Sign Up"}
           </button>
@@ -122,6 +159,13 @@ export function Auth({ onCancel }) {
         .form-group {
           margin-bottom: 1rem;
         }
+        .input-label {
+            display: block;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            margin-bottom: 0.5rem;
+            margin-left: 0.25rem;
+        }
         input {
           width: 100%;
           padding: 1rem;
@@ -154,6 +198,7 @@ export function Auth({ onCancel }) {
           border-radius: 8px;
           font-size: 0.9rem;
           text-align: center;
+          margin-top: 1rem;
         }
         .auth-footer {
           margin-top: 1.5rem;
