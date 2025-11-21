@@ -1,0 +1,31 @@
+:root {
+  --primary-color: #10b981; /* Emerald 500 */
+  --bg-color: #0f172a; /* Slate 900 */
+  --text-color: #f8fafc; /* Slate 50 */
+  --card-bg: #1e293b; /* Slate 800 */
+  --font-family: 'Inter', system-ui, Avenir, Helvetica, Arial, sans-serif;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-family);
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+}
+
+#root {
+  width: 100%;
+  max-width: 480px; /* Mobile width */
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+.app-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}

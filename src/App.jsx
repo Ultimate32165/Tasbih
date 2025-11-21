@@ -1,0 +1,89 @@
+import { useState } from 'react';
+import { Layout } from './components/Layout';
+import { TasbihList } from './components/TasbihList';
+import { Counter } from './components/Counter';
+import { AddTasbihForm } from './components/AddTasbihForm';
+import { useTasbih } from './hooks/useTasbih';
+
+function App() {
+    const {
+        tasbihs,
+        activeTasbih,
+        count,
+        addTasbih,
+        selectTasbih,
+        increment,
+        reset,
+        setActiveTasbihId
+    } = useTasbih();
+
+    const [isAdding, setIsAdding] = useState(false);
+
+    const handleAdd = (newTasbih) => {
+        addTasbih(newTasbih);
+        setIsAdding(false);
+    };
+
+    return (
+        <Layout>
+            {activeTasbih ? (
+                <Counter
+                    tasbih={activeTasbih}
+                    count={count}
+                    onIncrement={increment}
+                    onBack={() => setActiveTasbihId(null)}
+                    onReset={reset}
+                />
+            ) : isAdding ? (
+                <AddTasbihForm
+                    onAdd={handleAdd}
+                    onCancel={() => setIsAdding(false)}
+                />
+            ) : (
+                <>
+                    <TasbihList
+                        tasbihs={tasbihs}
+                        onSelect={selectTasbih}
+                    />
+                    <button
+                        className="fab-add"
+                        onClick={() => setIsAdding(true)}
+                    >
+                        +
+                    </button>
+                    <style>{`
+            .fab-add {
+              position: fixed;
+              bottom: 2rem;
+              right: 2rem;
+              width: 56px;
+              height: 56px;
+              border-radius: 50%;
+              background: var(--primary-color);
+              color: #0f172a;
+              border: none;
+              font-size: 2rem;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+              cursor: pointer;
+              transition: transform 0.2s;
+              z-index: 10;
+            }
+            .fab-add:active {
+              transform: scale(0.9);
+            }
+            @media (min-width: 481px) {
+              .fab-add {
+                position: absolute; /* relative to layout */
+              }
+            }
+          `}</style>
+                </>
+            )}
+        </Layout>
+    );
+}
+
+export default App;
