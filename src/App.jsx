@@ -1,57 +1,6 @@
-import { useState } from 'react';
-import { Layout } from './components/Layout';
-import { TasbihList } from './components/TasbihList';
-import { Counter } from './components/Counter';
-import { AddTasbihForm } from './components/AddTasbihForm';
-import { useTasbih } from './hooks/useTasbih';
-
-function App() {
-    const {
-        tasbihs,
-        activeTasbih,
-        count,
-        addTasbih,
-        selectTasbih,
-        increment,
-        reset,
-        setActiveTasbihId
-    } = useTasbih();
-
-    const [isAdding, setIsAdding] = useState(false);
-
-    const handleAdd = (newTasbih) => {
-        addTasbih(newTasbih);
-        setIsAdding(false);
-    };
-
-    return (
-        <Layout>
-            {activeTasbih ? (
-                <Counter
-                    tasbih={activeTasbih}
-                    count={count}
-                    onIncrement={increment}
-                    onBack={() => setActiveTasbihId(null)}
-                    onReset={reset}
-                />
-            ) : isAdding ? (
-                <AddTasbihForm
-                    onAdd={handleAdd}
-                    onCancel={() => setIsAdding(false)}
-                />
-            ) : (
-                <>
-                    <TasbihList
-                        tasbihs={tasbihs}
-                        onSelect={selectTasbih}
-                    />
-                    <button
-                        className="fab-add"
-                        onClick={() => setIsAdding(true)}
-                    >
-                        +
-                    </button>
-                    <style>{`
++
+                    </button >
+    <style>{`
             .fab-add {
               position: fixed;
               bottom: 2rem;
@@ -82,7 +31,7 @@ function App() {
           `}</style>
                 </>
             )}
-        </Layout>
+        </Layout >
     );
 }
 

@@ -18,17 +18,24 @@ export function useTasbih() {
     }, [tasbihs]);
 
     const addTasbih = (newTasbih) => {
-        setTasbihs((prev) => [...prev, { ...newTasbih, id: Date.now().toString() }]);
+        setTasbihs((prev) => [...prev, { ...newTasbih, id: Date.now().toString(), isCustom: true }]);
+    };
+
+    const deleteTasbih = (id) => {
+        setTasbihs((prev) => prev.filter(t => t.id !== id));
+        if (activeTasbihId === id) {
+            setActiveTasbihId(null);
+            setCount(0);
+        }
     };
 
     const selectTasbih = (id) => {
         setActiveTasbihId(id);
-        setCount(0); // Reset count on select? Or keep session? Let's reset for now.
+        setCount(0);
     };
 
     const increment = () => {
         setCount((c) => c + 1);
-        // Optional: Vibrate
         if (navigator.vibrate) navigator.vibrate(50);
     };
 
@@ -43,9 +50,10 @@ export function useTasbih() {
         activeTasbih,
         count,
         addTasbih,
+        deleteTasbih,
         selectTasbih,
         increment,
         reset,
-        setActiveTasbihId, // to go back
+        setActiveTasbihId,
     };
 }
