@@ -14,7 +14,7 @@ export function Auth({ onCancel }) {
     setMessage('');
 
     // Append dummy domain to create a valid email format
-    const email = `${username}@tasbih.local`;
+    const email = `${username}@tasbih-app.com`;
 
     try {
       if (isSignUp) {
