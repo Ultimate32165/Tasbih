@@ -2,87 +2,93 @@ import React, { useState } from 'react';
 import { supabase } from '../lib/supabase';
 
 export function Auth({ onCancel }) {
-    const [loading, setLoading] = useState(false);
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [isSignUp, setIsSignUp] = useState(false);
-    const [message, setMessage] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [isSignUp, setIsSignUp] = useState(false);
+  const [message, setMessage] = useState('');
 
-    const handleAuth = async (e) => {
-        e.preventDefault();
-        setLoading(true);
-        setMessage('');
+  const handleAuth = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setMessage('');
 
-        try {
-            if (isSignUp) {
-                const { error } = await supabase.auth.signUp({
-                    email,
-                    password,
-                });
-                if (error) throw error;
-                setMessage('Check your email for the confirmation link!');
-            } else {
-                const { error } = await supabase.auth.signInWithPassword({
-                    email,
-                    password,
-                });
-                if (error) throw error;
-                // Login successful, parent component will handle state change via listener
-            }
-        } catch (error) {
-            setMessage(error.message);
-        } finally {
-            setLoading(false);
-        }
-    };
+    // Append dummy domain to create a valid email format
+    const email = `${username}@tasbih.local`;
 
-    return (
-        <div className="auth-container">
-            <div className="auth-card">
-                <h2>{isSignUp ? 'Create Account' : 'Welcome Back'}</h2>
-                <p className="subtitle">Sync your tasbihs across devices</p>
+    try {
+      if (isSignUp) {
+        const { error } = await supabase.auth.signUp({
+          email,
+          password,
+        });
+        if (error) throw error;
+        setMessage('Account created! You can now sign in.');
+        setIsSignUp(false); // Switch to sign in mode
+      } else {
+        const { error } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+        if (error) throw error;
+        // Login successful
+      }
+    } catch (error) {
+      setMessage(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-                <form onSubmit={handleAuth}>
-                    <div className="form-group">
-                        <input
-                            type="email"
-                            placeholder="Email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            required
-                        />
-                    </div>
-                    <div className="form-group">
-                        <input
-                            type="password"
-                            placeholder="Password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            required
-                        />
-                    </div>
+  return (
+    <div className="auth-container">
+      <div className="auth-card">
+        <h2>{isSignUp ? 'Create Account' : 'Welcome Back'}</h2>
+        <p className="subtitle">Sync your tasbihs across devices</p>
 
-                    {message && <div className="message">{message}</div>}
+        <form onSubmit={handleAuth}>
+          <div className="form-group">
+            <input
+              type="text"
+              placeholder="Username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              required
+              minLength={3}
+            />
+          </div>
+          <div className="form-group">
+            <input
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              minLength={6}
+            />
+          </div>
 
-                    <button type="submit" className="btn-primary" disabled={loading}>
-                        {loading ? 'Loading...' : isSignUp ? 'Sign Up' : 'Sign In'}
-                    </button>
-                </form>
+          {message && <div className="message">{message}</div>}
 
-                <div className="auth-footer">
-                    <button
-                        className="link-btn"
-                        onClick={() => setIsSignUp(!isSignUp)}
-                    >
-                        {isSignUp ? 'Already have an account? Sign In' : "Don't have an account? Sign Up"}
-                    </button>
-                    <button className="link-btn cancel" onClick={onCancel}>
-                        Cancel
-                    </button>
-                </div>
-            </div>
+          <button type="submit" className="btn-primary" disabled={loading}>
+            {loading ? 'Loading...' : isSignUp ? 'Sign Up' : 'Sign In'}
+          </button>
+        </form>
 
-            <style>{`
+        <div className="auth-footer">
+          <button
+            className="link-btn"
+            onClick={() => setIsSignUp(!isSignUp)}
+          >
+            {isSignUp ? 'Already have an account? Sign In' : "Don't have an account? Sign Up"}
+          </button>
+          <button className="link-btn cancel" onClick={onCancel}>
+            Cancel
+          </button>
+        </div>
+      </div>
+
+      <style>{`
         .auth-container {
           position: fixed;
           inset: 0;
@@ -171,6 +177,6 @@ export function Auth({ onCancel }) {
           color: var(--text-muted);
         }
       `}</style>
-        </div>
-    );
+    </div>
+  );
 }

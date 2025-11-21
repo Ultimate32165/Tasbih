@@ -91,6 +91,20 @@ export function useTasbih() {
         }
     };
 
+    const [counts, setCounts] = useState(() => {
+        const saved = localStorage.getItem('tasbih_counts');
+        return saved ? JSON.parse(saved) : {};
+    });
+
+    // Persist counts to LocalStorage (Guest Mode)
+    useEffect(() => {
+        if (!user) {
+            localStorage.setItem('tasbih_counts', JSON.stringify(counts));
+        }
+    }, [counts, user]);
+
+    // ... (existing user/tasbihs effects) ...
+
     const selectTasbih = async (id) => {
         setActiveTasbihId(id);
 
@@ -104,11 +118,8 @@ export function useTasbih() {
 
             setCount(data?.count || 0);
         } else {
-            // Local storage logic for counts could be improved, but for now we reset or keep in memory
-            // The original code reset count on select. Let's keep it simple for guest.
-            // Actually, let's try to persist guest counts in a separate object if we want, 
-            // but the prompt asked for sync. Guest behavior can remain simple.
-            setCount(0);
+            // Load from local state
+            setCount(counts[id] || 0);
         }
     };
 
@@ -118,8 +129,6 @@ export function useTasbih() {
         if (navigator.vibrate) navigator.vibrate(50);
 
         if (user && activeTasbihId) {
-            // Debounce or just fire? Fire for now, Supabase is fast. 
-            // Optimistic update is already done via setCount.
             await supabase
                 .from('tasbih_counts')
                 .upsert({
@@ -128,6 +137,8 @@ export function useTasbih() {
                     count: newCount,
                     updated_at: new Date().toISOString()
                 });
+        } else if (activeTasbihId) {
+            setCounts(prev => ({ ...prev, [activeTasbihId]: newCount }));
         }
     };
 
@@ -142,6 +153,8 @@ export function useTasbih() {
                     count: 0,
                     updated_at: new Date().toISOString()
                 });
+        } else if (activeTasbihId) {
+            setCounts(prev => ({ ...prev, [activeTasbihId]: 0 }));
         }
     };
 
